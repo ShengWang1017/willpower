@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '../views/Dashboard.vue';
 import LoginPage from '../views/LoginPage.vue';
 import RegisterPage from '../views/RegisterPage.vue';
+import GoalDetail from '../views/GoalDetail.vue';
 import { useAuthStore } from '../store/auth';
 
 const router = createRouter({
@@ -22,6 +23,12 @@ const router = createRouter({
       path: '/',
       name: 'dashboard',
       component: Dashboard,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/goals/:id',
+      name: 'goal-detail',
+      component: GoalDetail,
       meta: { requiresAuth: true }
     }
   ]

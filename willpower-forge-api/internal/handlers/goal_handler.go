@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -64,6 +65,35 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 	}
 
 	respondSuccess(c, http.StatusOK, "Success", goals)
+}
+
+func (h *GoalHandler) GetGoalByID(c *gin.Context) {
+	userID, ok := getUserID(c)
+	if !ok {
+		respondError(c, http.StatusUnauthorized, 40102, "Unauthorized")
+		return
+	}
+
+	goalIDParam := c.Param("id")
+	goalID, err := strconv.ParseUint(goalIDParam, 10, 64)
+	if err != nil {
+		respondError(c, http.StatusBadRequest, 40001, "Invalid goal id")
+		return
+	}
+
+	goalIDUint := uint(goalID)
+
+	var goal models.Goal
+	if err := h.db.Where("id = ? AND user_id = ?", goalIDUint, userID).First(&goal).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			respondError(c, http.StatusNotFound, 40401, "Goal not found")
+			return
+		}
+		respondError(c, http.StatusInternalServerError, 50001, "Internal server error")
+		return
+	}
+
+	respondSuccess(c, http.StatusOK, "Success", goal)
 }
 
 func getUserID(c *gin.Context) (uint, bool) {

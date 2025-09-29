@@ -3,12 +3,14 @@ import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 import GoalCard from '../components/GoalCard.vue';
+import GoalSummaryChart from '../components/GoalSummaryChart.vue';
 import { useAuthStore } from '../store/auth';
 
 const authStore = useAuthStore();
 const router = useRouter();
 
 const goals = ref([]);
+const goalSummaries = ref([]);
 const isLoading = ref(false);
 const errorMessage = ref('');
 const toast = ref('');
@@ -37,6 +39,16 @@ const fetchGoals = async () => {
   }
 };
 
+const fetchGoalSummaries = async () => {
+  try {
+    const response = await api.get('/checkins/summary');
+    goalSummaries.value = response.data.data || [];
+  } catch (error) {
+    // keep silent fallback to avoid blocking dashboard rendering
+    console.warn('Failed to load goal summaries', error);
+  }
+};
+
 const createGoal = async () => {
   if (!goalForm.value.title.trim()) {
     toast.value = 'Goal title cannot be empty';
@@ -48,13 +60,10 @@ const createGoal = async () => {
     goals.value.unshift(response.data.data);
     goalForm.value = { type: 'I_WILL', title: '' };
     toast.value = 'Goal created successfully';
+    await fetchGoalSummaries();
   } catch (error) {
     toast.value = error.response?.data?.message || 'Unable to create goal';
   }
-};
-
-const handleCheckInRecorded = (payload) => {
-  toast.value = payload.message;
 };
 
 const logout = () => {
@@ -71,6 +80,7 @@ watch(toast, (value) => {
 });
 
 onMounted(fetchGoals);
+onMounted(fetchGoalSummaries);
 </script>
 
 <template>
@@ -123,6 +133,19 @@ onMounted(fetchGoals);
       </section>
 
       <section>
+        <div v-if="goalSummaries.length" class="mb-8 bg-white rounded-xl shadow p-6">
+          <header class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold text-slate-700">Overall Progress</h2>
+              <p class="text-sm text-slate-500">Track how each goal is performing over time.</p>
+            </div>
+            <span class="text-xs uppercase tracking-wide text-slate-400">All Goals</span>
+          </header>
+          <div class="mt-6">
+            <GoalSummaryChart :summaries="goalSummaries" />
+          </div>
+        </div>
+
         <div v-if="toast" class="mb-4 rounded-md bg-indigo-50 border border-indigo-200 px-4 py-3 text-indigo-700">
           {{ toast }}
         </div>
@@ -133,12 +156,14 @@ onMounted(fetchGoals);
         <div v-else>
           <div v-if="goals.length === 0" class="text-center text-slate-500">No goals yet. Create your first one!</div>
           <div v-else class="grid gap-4 md:grid-cols-2">
-            <GoalCard
+            <RouterLink
               v-for="goal in goals"
               :key="goal.id"
-              :goal="goal"
-              @checkin-recorded="handleCheckInRecorded"
-            />
+              :to="`/goals/${goal.id}`"
+              class="block"
+            >
+              <GoalCard :goal="goal" />
+            </RouterLink>
           </div>
         </div>
       </section>
