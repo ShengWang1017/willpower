@@ -6,7 +6,6 @@
 # 编译生成的可执行文件 (Windows and Linux/macOS)
 *.exe
 *.exe~
-willpower-forge-api
 
 # ### Node.js Frontend ###
 # 依赖包文件夹
