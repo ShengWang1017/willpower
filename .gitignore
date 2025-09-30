@@ -37,4 +37,4 @@ pnpm-debug.log*
 
 # 操作系统生成的文件
 .DS_Store
-Thumbs.db
+Thumbs.dbwillpower-forge-api/willpower.db
