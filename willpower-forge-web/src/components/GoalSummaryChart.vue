@@ -22,16 +22,16 @@ const props = defineProps({
 
 const palette = {
   completed: {
-    border: '#10b981',
-    gradient: ['rgba(16, 185, 129, 0.55)', 'rgba(16, 185, 129, 0.15)']
+    border: '#379d64',
+    gradient: ['rgba(55, 157, 100, 0.55)', 'rgba(55, 157, 100, 0.18)']
   },
   partial: {
     border: '#f59e0b',
-    gradient: ['rgba(245, 158, 11, 0.55)', 'rgba(245, 158, 11, 0.15)']
+    gradient: ['rgba(245, 158, 11, 0.55)', 'rgba(245, 158, 11, 0.18)']
   },
   failed: {
     border: '#ef4444',
-    gradient: ['rgba(239, 68, 68, 0.55)', 'rgba(239, 68, 68, 0.15)']
+    gradient: ['rgba(239, 68, 68, 0.55)', 'rgba(239, 68, 68, 0.18)']
   }
 };
 
@@ -133,14 +133,15 @@ const chartOptions = computed(() => ({
     }
   },
   animation: {
-    duration: 700,
-    easing: 'easeOutQuart'
+    duration: 900,
+    easing: 'easeOutCubic',
+    delay: (context) => context.dataIndex * 80
   }
 }));
 </script>
 
 <template>
-  <div class="h-80">
+  <div class="h-80 w-full">
     <Bar :data="chartData" :options="chartOptions" />
   </div>
 </template>

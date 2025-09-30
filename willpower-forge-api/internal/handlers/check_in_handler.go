@@ -126,6 +126,14 @@ func (h *CheckInHandler) GoalSummaries(c *gin.Context) {
 		return
 	}
 
+	dateFilter := c.Query("date")
+	if dateFilter != "" {
+		if _, err := time.Parse("2006-01-02", dateFilter); err != nil {
+			respondError(c, http.StatusBadRequest, 40001, "Invalid date format")
+			return
+		}
+	}
+
 	var goals []models.Goal
 	if err := h.db.Where("user_id = ?", userID).Order("created_at ASC").Find(&goals).Error; err != nil {
 		respondError(c, http.StatusInternalServerError, 50001, "Internal server error")
@@ -149,11 +157,15 @@ func (h *CheckInHandler) GoalSummaries(c *gin.Context) {
 	}
 
 	var rows []goalSummaryRow
-	if err := h.db.Model(&models.CheckIn{}).
+	query := h.db.Model(&models.CheckIn{}).
 		Select("goal_id, status, COUNT(*) AS count").
-		Where("user_id = ?", userID).
-		Group("goal_id, status").
-		Find(&rows).Error; err != nil {
+		Where("user_id = ?", userID)
+
+	if dateFilter != "" {
+		query = query.Where("date = ?", dateFilter)
+	}
+
+	if err := query.Group("goal_id, status").Find(&rows).Error; err != nil {
 		respondError(c, http.StatusInternalServerError, 50001, "Internal server error")
 		return
 	}

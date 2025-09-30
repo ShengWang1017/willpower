@@ -19,6 +19,10 @@ type CreateGoalRequest struct {
 	Title string `json:"title" binding:"required,min=1,max=255"`
 }
 
+type UpdateGoalStatusRequest struct {
+	Status string `json:"status" binding:"required,oneof=active archived"`
+}
+
 func NewGoalHandler(db *gorm.DB) *GoalHandler {
 	return &GoalHandler{db: db}
 }
@@ -94,6 +98,50 @@ func (h *GoalHandler) GetGoalByID(c *gin.Context) {
 	}
 
 	respondSuccess(c, http.StatusOK, "Success", goal)
+}
+
+func (h *GoalHandler) UpdateGoalStatus(c *gin.Context) {
+	userID, ok := getUserID(c)
+	if !ok {
+		respondError(c, http.StatusUnauthorized, 40102, "Unauthorized")
+		return
+	}
+
+	goalIDParam := c.Param("id")
+	goalID, err := strconv.ParseUint(goalIDParam, 10, 64)
+	if err != nil {
+		respondError(c, http.StatusBadRequest, 40001, "Invalid goal id")
+		return
+	}
+
+	var req UpdateGoalStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, 40001, "Invalid input")
+		return
+	}
+
+	var goal models.Goal
+	if err := h.db.Where("id = ? AND user_id = ?", uint(goalID), userID).First(&goal).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			respondError(c, http.StatusNotFound, 40401, "Goal not found")
+			return
+		}
+		respondError(c, http.StatusInternalServerError, 50001, "Internal server error")
+		return
+	}
+
+	if goal.Status == req.Status {
+		respondSuccess(c, http.StatusOK, "Success", goal)
+		return
+	}
+
+	if err := h.db.Model(&goal).Update("status", req.Status).Error; err != nil {
+		respondError(c, http.StatusInternalServerError, 50001, "Internal server error")
+		return
+	}
+
+	goal.Status = req.Status
+	respondSuccess(c, http.StatusOK, "Goal status updated", goal)
 }
 
 func getUserID(c *gin.Context) (uint, bool) {

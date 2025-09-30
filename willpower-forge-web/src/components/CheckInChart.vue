@@ -22,16 +22,16 @@ const props = defineProps({
 
 const statusPalette = {
   completed: {
-    border: '#10b981',
-    gradient: ['rgba(16, 185, 129, 0.45)', 'rgba(16, 185, 129, 0.05)']
+    border: '#379d64',
+    gradient: ['rgba(55, 157, 100, 0.48)', 'rgba(55, 157, 100, 0.08)']
   },
   partial: {
     border: '#f59e0b',
-    gradient: ['rgba(245, 158, 11, 0.45)', 'rgba(245, 158, 11, 0.05)']
+    gradient: ['rgba(245, 158, 11, 0.45)', 'rgba(245, 158, 11, 0.08)']
   },
   failed: {
-    border: '#f87171',
-    gradient: ['rgba(248, 113, 113, 0.45)', 'rgba(248, 113, 113, 0.05)']
+    border: '#ef4444',
+    gradient: ['rgba(239, 68, 68, 0.45)', 'rgba(239, 68, 68, 0.08)']
   }
 };
 
@@ -96,7 +96,7 @@ const chartOptions = computed(() => ({
         display: false
       },
       ticks: {
-        color: '#64748b',
+        color: '#1f2937',
         font: {
           family: 'Inter, system-ui, sans-serif',
           size: 12
@@ -107,11 +107,11 @@ const chartOptions = computed(() => ({
       stacked: true,
       beginAtZero: true,
       grid: {
-        color: 'rgba(148, 163, 184, 0.15)'
+        color: 'rgba(148, 163, 184, 0.18)'
       },
       ticks: {
         precision: 0,
-        color: '#64748b',
+        color: '#475569',
         font: {
           family: 'Inter, system-ui, sans-serif'
         }
@@ -150,14 +150,15 @@ const chartOptions = computed(() => ({
     }
   },
   animation: {
-    duration: 650,
-    easing: 'easeOutQuart'
+    duration: 900,
+    easing: 'easeOutCubic',
+    delay: (context) => context.dataIndex * 80
   }
 }));
 </script>
 
 <template>
-  <div class="h-80">
+  <div class="h-80 w-full">
     <Bar :data="chartData" :options="chartOptions" />
   </div>
 </template>

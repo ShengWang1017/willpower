@@ -23,7 +23,7 @@ const typeLabels = {
 const goalTypeLabel = (type) => typeLabels[type] || type;
 
 const statuses = [
-  { label: 'Completed', value: 'completed', color: 'bg-emerald-500 hover:bg-emerald-600' },
+  { label: 'Completed', value: 'completed', color: 'bg-moss-500 hover:bg-moss-600' },
   { label: 'Partial', value: 'partial', color: 'bg-amber-500 hover:bg-amber-600' },
   { label: 'Failed', value: 'failed', color: 'bg-rose-500 hover:bg-rose-600' }
 ];
@@ -36,6 +36,11 @@ const isSubmitting = ref(false);
 const submitError = ref('');
 const submitMessage = ref('');
 const reviewNotes = ref('');
+const isUpdatingStatus = ref(false);
+const statusError = ref('');
+
+const isGoalActive = computed(() => goal.value?.status === 'active');
+const statusButtonLabel = computed(() => (isGoalActive.value ? 'Active' : 'Archived'));
 
 const formatDate = (value) => {
   if (!value) {
@@ -47,6 +52,32 @@ const formatDate = (value) => {
 
 const sortCheckIns = () => {
   checkIns.value = [...checkIns.value].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+};
+
+const updateGoalStatus = async (status) => {
+  if (!goal.value || goal.value.status === status || isUpdatingStatus.value) {
+    return;
+  }
+
+  isUpdatingStatus.value = true;
+  statusError.value = '';
+
+  try {
+    const response = await api.patch(`/goals/${goalId.value}/status`, { status });
+    goal.value = response.data.data;
+  } catch (error) {
+    statusError.value = error.response?.data?.message || 'Unable to update status';
+  } finally {
+    isUpdatingStatus.value = false;
+  }
+};
+
+const toggleGoalStatus = () => {
+  if (!goal.value) {
+    return;
+  }
+  const nextStatus = isGoalActive.value ? 'archived' : 'active';
+  updateGoalStatus(nextStatus);
 };
 
 const loadGoalDetail = async () => {
@@ -94,7 +125,7 @@ const upsertCheckIn = (record) => {
 };
 
 const submitCheckIn = async (status) => {
-  if (!goal.value) {
+  if (!goal.value || !isGoalActive.value) {
     return;
   }
 
@@ -142,46 +173,58 @@ watch(todayCheckIn, (value) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100">
-    <header class="bg-white shadow-sm">
+  <div class="min-h-screen">
+    <header class="bg-white/85 backdrop-blur border-b border-white/70 shadow-sm">
       <div class="mx-auto max-w-4xl px-4 py-4 flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-800">Goal Detail</h1>
-          <p class="text-sm text-slate-500">Track your progress history</p>
+          <h1 class="text-2xl font-semibold text-midnight-900">Goal Detail</h1>
+          <p class="text-sm text-midnight-500">Track your progress history</p>
         </div>
-        <button @click="goBack" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Back to Dashboard</button>
+        <button @click="goBack" class="text-sm font-semibold text-moss-600 hover:text-moss-700">Back to Dashboard</button>
       </div>
     </header>
 
-    <main class="mx-auto max-w-4xl px-4 py-8">
-      <div v-if="isLoading" class="text-center text-slate-500">Loading goal information...</div>
+    <main class="mx-auto max-w-4xl px-4 py-10 space-y-10">
+      <div v-if="isLoading" class="text-center text-midnight-500">Loading goal information...</div>
 
       <div v-else>
-        <div v-if="errorMessage" class="mb-6 rounded-md bg-red-50 border border-red-200 px-4 py-3 text-red-700">
+        <div v-if="errorMessage" class="mb-6 rounded-lg border border-rose-200 bg-rose-50/80 px-4 py-3 text-rose-700">
           {{ errorMessage }}
         </div>
 
-        <section v-if="goal" class="mb-8 bg-white rounded-xl shadow p-6">
-          <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">{{ goalTypeLabel(goal.type) }}</p>
-          <h2 class="text-2xl font-semibold text-slate-800 mb-2">{{ goal.title }}</h2>
-          <div class="flex flex-wrap gap-4 text-sm text-slate-500">
-            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-              Status: {{ goal.status }}
-            </span>
+        <section v-if="goal" class="surface-section p-8">
+          <p class="muted-label mb-3">{{ goalTypeLabel(goal.type) }}</p>
+          <h2 class="text-3xl font-semibold text-midnight-900 mb-4 leading-tight">{{ goal.title }}</h2>
+          <div class="flex flex-wrap gap-4 text-sm text-midnight-500">
             <span>Created: {{ formatDate(goal.created_at) }}</span>
             <span>Updated: {{ formatDate(goal.updated_at) }}</span>
           </div>
+
+          <div class="mt-6 space-y-2">
+            <span class="muted-label">Goal Status</span>
+            <button
+              type="button"
+              class="inline-flex items-center rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              :class="[
+                isGoalActive
+                  ? 'bg-[#16a34a] text-white focus:ring-[#16a34a33]'
+                  : 'bg-[#dc2626] text-white focus:ring-[#dc262633]'
+              ]"
+              :disabled="isUpdatingStatus"
+              @click="toggleGoalStatus"
+            >
+              {{ statusButtonLabel }}
+            </button>
+            <p v-if="statusError" class="text-xs text-rose-600">{{ statusError }}</p>
+          </div>
         </section>
 
-        <section v-if="goal" class="mb-8 bg-white rounded-xl shadow p-6">
+        <section v-if="goal" class="surface-section p-8">
           <header class="mb-4 flex items-start justify-between gap-4">
             <div>
-              <h3 class="text-lg font-semibold text-slate-700">Today&apos;s Check-in</h3>
-              <p class="text-sm text-slate-500">
-                Choose a status for today. You can update it at any time before tomorrow.
-              </p>
+              <h3 class="text-lg font-semibold text-midnight-900">Today&apos;s Check-in</h3>
             </div>
-            <div v-if="todayCheckIn" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+            <div v-if="todayCheckIn" class="rounded-full border border-midnight-100/70 bg-white/70 px-3 py-1 text-xs font-medium text-midnight-600">
               Current: <span class="capitalize">{{ todayCheckIn.status }}</span>
             </div>
           </header>
@@ -192,8 +235,12 @@ watch(todayCheckIn, (value) => {
                 v-for="item in statuses"
                 :key="item.value"
                 type="button"
-                :disabled="isSubmitting"
-                :class="['flex-1 min-w-[120px] rounded-md px-3 py-2 text-white text-sm font-medium transition-colors', item.color, isSubmitting ? 'opacity-70' : '']"
+                :disabled="isSubmitting || !isGoalActive"
+                :class="[
+                  'flex-1 min-w-[120px] rounded-lg px-3 py-2 text-white text-sm font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed',
+                  item.color,
+                  isSubmitting || !isGoalActive ? '' : 'shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5'
+                ]"
                 @click="submitCheckIn(item.value)"
               >
                 {{ item.label }}
@@ -201,60 +248,60 @@ watch(todayCheckIn, (value) => {
             </div>
 
             <div>
-              <label for="reviewNotes" class="block text-sm font-medium text-slate-600">Notes (optional)</label>
+              <label for="reviewNotes" class="block text-sm font-medium text-midnight-500">Notes (optional)</label>
               <textarea
                 id="reviewNotes"
                 v-model="reviewNotes"
-                class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                class="mt-1 w-full rounded-lg border border-midnight-100/80 bg-white/85 px-3 py-2 text-midnight-800 focus:outline-none focus:ring-2 focus:ring-moss-400/60"
                 rows="3"
                 placeholder="Reflect on today&apos;s progress"
-                :disabled="isSubmitting"
+                :disabled="isSubmitting || !isGoalActive"
               ></textarea>
-              <p v-if="todayCheckIn?.review_notes" class="mt-1 text-xs text-slate-500">
+              <p v-if="todayCheckIn?.review_notes" class="mt-1 text-xs text-midnight-400">
                 Last note: {{ todayCheckIn.review_notes }}
               </p>
             </div>
 
-            <div v-if="submitError" class="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{{ submitError }}</div>
-            <div v-else-if="submitMessage" class="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-600">{{ submitMessage }}</div>
+            <div v-if="submitError" class="rounded-lg border border-rose-200 bg-rose-50/70 px-3 py-2 text-sm text-rose-700">{{ submitError }}</div>
+            <div v-else-if="submitMessage" class="rounded-lg border border-moss-200 bg-moss-50/80 px-3 py-2 text-sm text-moss-700">{{ submitMessage }}</div>
           </div>
         </section>
 
-        <section v-if="checkIns.length" class="mb-8 bg-white rounded-xl shadow p-6">
+        <section v-if="checkIns.length" class="surface-section p-8">
           <header class="flex items-center justify-between">
             <div>
-              <h3 class="text-lg font-semibold text-slate-700">Progress Overview</h3>
-              <p class="text-sm text-slate-500">Daily outcome mix across your check-ins.</p>
+              <h3 class="text-lg font-semibold text-midnight-900">Progress Overview</h3>
+              <p class="text-sm text-midnight-500">Daily outcome mix across your check-ins.</p>
             </div>
-            <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Status Counts</span>
+            <span class="muted-label">Status Counts</span>
           </header>
           <div class="mt-6">
             <CheckInChart :check-ins="checkIns" />
           </div>
         </section>
 
-        <section class="bg-white rounded-xl shadow">
-          <header class="border-b border-slate-100 px-6 py-4">
+        <section class="surface-section">
+          <header class="border-b border-white/70 px-6 py-4">
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold text-slate-700">Check-in History</h3>
-              <p v-if="submitMessage && todayCheckIn" class="text-sm text-emerald-600">{{ submitMessage }}</p>
+              <h3 class="text-lg font-semibold text-midnight-900">Check-in History</h3>
+              <p v-if="submitMessage && todayCheckIn" class="text-sm text-moss-600">{{ submitMessage }}</p>
             </div>
           </header>
 
-          <div v-if="checkIns.length === 0" class="px-6 py-8 text-center text-slate-500">
+          <div v-if="checkIns.length === 0" class="px-6 py-8 text-center text-midnight-500">
             No check-ins recorded yet.
           </div>
 
           <div v-else class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200">
-              <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+            <table class="min-w-full divide-y divide-midnight-100/70">
+              <thead class="bg-white/60 text-left text-xs uppercase tracking-wider text-midnight-400">
                 <tr>
                   <th class="px-6 py-3 font-medium">Date</th>
                   <th class="px-6 py-3 font-medium">Status</th>
                   <th class="px-6 py-3 font-medium">Review Notes</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200 text-sm text-slate-700">
+              <tbody class="divide-y divide-midnight-100/70 text-sm text-midnight-700">
                 <tr v-for="item in checkIns" :key="item.id">
                   <td class="px-6 py-3 whitespace-nowrap">{{ formatDate(item.date) }}</td>
                   <td class="px-6 py-3 whitespace-nowrap capitalize">{{ item.status }}</td>
