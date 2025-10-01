@@ -1,0 +1,28 @@
+[Unit]
+Description=Willpower Forge - Goal Tracking Application
+Documentation=https://github.com/ShengWang1017/willpower
+After=network.target
+
+[Service]
+Type=simple
+User=sheng.wang
+Group=sheng.wang
+WorkingDirectory=/home/sheng.wang/willpower-forge
+ExecStart=/home/sheng.wang/willpower-forge/willpower-forge-linux
+Restart=on-failure
+RestartSec=5s
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Environment variables (if needed)
+# Environment="GIN_MODE=release"
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=willpower-forge
+
+[Install]
+WantedBy=multi-user.target
