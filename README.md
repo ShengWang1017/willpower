@@ -8,7 +8,7 @@
 [![Go Version](https://img.shields.io/badge/Go-1.18+-00ADD8?logo=go)](https://golang.org)
 [![Vue Version](https://img.shields.io/badge/Vue-3.3+-4FC08D?logo=vue.js)](https://vuejs.org)
 
-[Features](#-features) • [Quick Start](#-quick-start) • [Screenshots](#-screenshots) • [Development](#-development) • [Building](#-building)
+[Features](#-features) • [Quick Start](#-quick-start) • [Configuration](#-configuration) • [Development](#-development) • [API](#-api)
 
 </div>
 
@@ -18,72 +18,148 @@
 
 Willpower Forge is a modern goal tracking application that helps you build and maintain productive habits. With an elegant interface featuring dynamic backgrounds, interactive charts, and comprehensive check-in history, staying motivated has never been easier.
 
-The entire application is packaged into a single executable file - no installation, no dependencies, just download and run!
+**Key Highlights:**
+- 💾 Single executable file - no installation needed
+- 🔒 Secure authentication with JWT
+- 📊 Beautiful data visualizations
+- 🌐 Multi-language support (EN/中文)
+- ⚡ Fast and lightweight (Go + Vue 3)
+
+---
 
 ## ✨ Features
 
-- **📊 Visual Progress Tracking** - Beautiful charts and progress rings to visualize your journey
-- **✅ Daily Check-ins** - Mark your goals as completed, partial, or failed with review notes
-- **📈 Historical Analytics** - View detailed check-in history and trend analysis
-- **🎨 Dynamic UI** - Stunning visual effects including particle systems, aurora backgrounds, and shader animations
+- **📊 Visual Progress Tracking** - Charts and progress rings to visualize your journey
+- **✅ Daily Check-ins** - Mark goals as completed, partial, or failed with review notes
+- **📈 Historical Analytics** - Detailed check-in history and trend analysis
+- **🎨 Dynamic UI** - Particle systems, aurora backgrounds, and shader animations
 - **♻️ Recycle Bin** - Recover accidentally deleted goals
-- **🌍 Multi-language Support** - Available in English and Chinese
 - **🔒 User Authentication** - Secure login and registration system
-- **📱 Responsive Design** - Works seamlessly on desktop and mobile devices
-- **💾 Standalone Application** - Single executable with embedded frontend, no external dependencies needed
+- **📱 Responsive Design** - Works on desktop and mobile devices
+
+---
 
 ## 🚀 Quick Start
 
-### For Users (Pre-built Executables)
+### Option 1: Download Pre-built Executable (Recommended)
 
-1. **Download** the latest release for your platform:
+1. **Download** the latest release:
    - [Windows](https://github.com/ShengWang1017/willpower/releases/latest) - `willpower-forge-windows.exe`
    - [Linux](https://github.com/ShengWang1017/willpower/releases/latest) - `willpower-forge-linux`
 
 2. **Run** the application:
+   ```bash
+   # Linux
+   chmod +x willpower-forge-linux
+   ./willpower-forge-linux
 
-   **Windows:**
-   ```cmd
-   # Simply double-click willpower-forge-windows.exe
-   # Or run from command line:
+   # Windows
    willpower-forge-windows.exe
    ```
 
-   **Linux:**
-   ```bash
-   chmod +x willpower-forge-linux
-   ./willpower-forge-linux
-   ```
+3. **Access**: Open browser at `http://localhost:5173`
 
-3. **Access** the application:
-   - Open your browser and navigate to `http://localhost:8080`
-   - Register a new account or login
-   - Start tracking your goals!
+### Option 2: Install as Linux System Service
 
-That's it! No Node.js, Go, or any other runtime required.
+For production deployment with auto-start on boot:
 
-## 📸 Screenshots
+```bash
+# 1. Run installation script
+sudo ./install-service.sh
 
-### Dashboard
-Beautiful goal cards with progress visualization and quick check-in actions.
+# 2. Verify service is running
+sudo systemctl status willpower-forge
 
-### Goal Detail & History
-View comprehensive check-in history with charts showing your progress over time.
+# 3. Access the application
+# Local: http://localhost:5173
+# Remote: http://YOUR_SERVER_IP:5173
+```
 
-### Dynamic Backgrounds
-Enjoy stunning visual effects that enhance your user experience.
+**Service Management:**
+```bash
+sudo systemctl start willpower-forge    # Start
+sudo systemctl stop willpower-forge     # Stop
+sudo systemctl restart willpower-forge  # Restart
+sudo journalctl -u willpower-forge -f   # View logs
+```
+
+**Uninstall:**
+```bash
+sudo ./uninstall-service.sh
+```
+
+---
+
+## ⚙️ Configuration
+
+### Change Listening Port
+
+**Method 1: Environment Variable (Temporary)**
+```bash
+PORT=8080 ./willpower-forge-linux
+```
+
+**Method 2: Systemd Service (Permanent)**
+```bash
+# Edit service file
+sudo nano /etc/systemd/system/willpower-forge.service
+
+# Change this line:
+Environment="PORT=5173"    # Change to your desired port
+
+# Restart service
+sudo systemctl daemon-reload
+sudo systemctl restart willpower-forge
+```
+
+**Default Port:** 5173
+
+### Enable External Access
+
+If running on a cloud server (Aliyun, AWS, etc.), you need to configure security group:
+
+**Aliyun ECS:**
+1. Login to https://ecs.console.aliyun.com/
+2. Navigate to: Instance → Security Groups → Configure Rules
+3. Add Inbound Rule:
+   - Protocol: TCP
+   - Port Range: 5173/5173 (or your custom port)
+   - Authorization Object: 0.0.0.0/0
+   - Description: Willpower Forge
+
+**Other Cloud Providers:**
+- AWS EC2: Security Groups → Inbound Rules → Add TCP 5173
+- Tencent Cloud: Security Groups → Add Rule
+- Google Cloud: VPC Network → Firewall Rules
+
+**Verify External Access:**
+```bash
+# Get your public IP
+curl ifconfig.me
+
+# Test access from your local computer
+curl http://YOUR_PUBLIC_IP:5173
+```
+
+### Database Location
+
+By default, `willpower.db` is created in the working directory:
+- Direct run: Same directory as executable
+- Service: `/var/lib/willpower-forge/willpower.db`
+
+---
 
 ## 🛠 Development
 
 ### Prerequisites
 
-- **Go** 1.18 or higher
-- **Node.js** 14+ and npm
-- **Git**
+- Go 1.18+
+- Node.js 14+
+- npm
 
 ### Setup
 
-1. **Clone the repository:**
+1. **Clone repository:**
    ```bash
    git clone https://github.com/ShengWang1017/willpower.git
    cd willpower
@@ -96,134 +172,258 @@ Enjoy stunning visual effects that enhance your user experience.
    go run main.go
    ```
 
-3. **Frontend setup** (in a new terminal):
+3. **Frontend setup** (new terminal):
    ```bash
    cd willpower-forge-web
    npm install
    npm run dev
    ```
 
-4. **Access the development server:**
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:8080`
+4. **Access:**
+   - Frontend: `http://localhost:5173` (Vite dev server)
+   - Backend API: `http://localhost:5173/api/v1`
 
 ### Project Structure
 
 ```
 willpower/
-├── willpower-forge-api/          # Go backend (Gin framework)
+├── willpower-forge-api/       # Go backend (Gin)
 │   ├── internal/
-│   │   ├── database/             # Database connection & models
-│   │   ├── handlers/             # HTTP request handlers
-│   │   ├── middleware/           # Authentication middleware
-│   │   ├── routes/               # API routes
-│   │   └── services/             # Business logic
-│   ├── web/dist/                 # Embedded frontend files
-│   └── main.go                   # Application entry point
-├── willpower-forge-web/          # Vue 3 frontend
+│   │   ├── database/          # DB models & connection
+│   │   ├── handlers/          # HTTP handlers
+│   │   ├── middleware/        # Auth middleware
+│   │   ├── routes/            # API routes
+│   │   └── services/          # Business logic
+│   ├── web/dist/              # Embedded frontend
+│   └── main.go
+├── willpower-forge-web/       # Vue 3 frontend
 │   ├── src/
-│   │   ├── components/           # Reusable Vue components
-│   │   ├── views/                # Page components
-│   │   ├── stores/               # Pinia state management
-│   │   └── router/               # Vue Router configuration
-│   └── dist/                     # Build output
-├── build-linux.sh                # Linux build script
-├── build-windows.bat             # Windows build script
-└── BUILD_README.md               # Detailed build instructions
+│   │   ├── components/        # Vue components
+│   │   ├── views/             # Page views
+│   │   ├── stores/            # Pinia stores
+│   │   └── router/            # Vue Router
+│   └── dist/                  # Build output
+├── install-service.sh         # Service installer
+├── uninstall-service.sh       # Service uninstaller
+├── build-linux.sh             # Linux build script
+├── build-windows.bat          # Windows build script
+└── BUILD_README.md            # Build documentation
 ```
 
-## 🔨 Building
+### Building
 
-### Building from Source
+See [BUILD_README.md](BUILD_README.md) for detailed build instructions.
 
-**Windows:**
-```cmd
+**Quick Build:**
+```bash
+# Linux/Mac
+./build-linux.sh
+
+# Windows
 build-windows.bat
 ```
 
-**Linux/Mac:**
-```bash
-chmod +x build-linux.sh
-./build-linux.sh
-```
+### Technology Stack
 
-The build script will:
-1. Install frontend dependencies
-2. Build the Vue application
-3. Copy frontend files to the backend
-4. Compile the Go application with embedded frontend
-5. Generate a single executable file
+**Backend:**
+- Framework: Gin (Go)
+- Database: SQLite + GORM
+- Auth: JWT tokens
+- Embedding: go:embed for frontend
 
-Output files:
-- `willpower-forge-windows.exe` (~15MB)
-- `willpower-forge-linux` (~18MB)
+**Frontend:**
+- Framework: Vue 3 (Composition API)
+- State: Pinia
+- Router: Vue Router
+- UI: Tailwind CSS
+- Charts: Chart.js
+- Animations: GSAP, Three.js
+- Build: Vite
 
-### Cross-platform Building
-
-Build for other platforms from Linux/Mac:
-
-```bash
-# Build for Windows (from Linux/Mac)
-cd willpower-forge-api
-GOOS=windows GOARCH=amd64 go build -o ../willpower-forge-windows.exe .
-
-# Build for Linux
-GOOS=linux GOARCH=amd64 go build -o ../willpower-forge-linux .
-```
-
-## 🏗 Technology Stack
-
-### Backend
-- **Framework:** Gin (Go web framework)
-- **Database:** SQLite with GORM
-- **Authentication:** JWT tokens
-- **CORS:** gin-contrib/cors
-
-### Frontend
-- **Framework:** Vue 3 (Composition API)
-- **State Management:** Pinia
-- **Routing:** Vue Router
-- **UI Framework:** Tailwind CSS
-- **Charts:** Chart.js + vue-chartjs
-- **Animations:** GSAP, Three.js
-- **HTTP Client:** Axios
-- **Build Tool:** Vite
-
-### Deployment
-- **Embedding:** Go embed package for single-file distribution
-- **Build Scripts:** Cross-platform build automation
+---
 
 ## 📚 API Documentation
 
+Base URL: `http://localhost:5173/api/v1`
+
 ### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - User login
 
-### Goals
-- `GET /api/v1/goals` - Get all goals (requires auth)
-- `POST /api/v1/goals` - Create new goal (requires auth)
-- `GET /api/v1/goals/:id` - Get single goal (requires auth)
-- `PUT /api/v1/goals/:id` - Update goal (requires auth)
-- `DELETE /api/v1/goals/:id` - Soft delete goal (requires auth)
+#### Register
+```http
+POST /auth/register
+Content-Type: application/json
 
-### Check-ins
-- `GET /api/v1/checkins` - Get check-in history by goal_id (requires auth)
-- `POST /api/v1/checkins` - Create check-in record (requires auth)
+{
+  "username": "user",
+  "password": "password"
+}
+```
 
-### Recycle Bin
-- `GET /api/v1/goals/recycle-bin` - Get deleted goals (requires auth)
-- `PUT /api/v1/goals/:id/restore` - Restore deleted goal (requires auth)
-- `DELETE /api/v1/goals/:id/permanent` - Permanently delete goal (requires auth)
+#### Login
+```http
+POST /auth/login
+Content-Type: application/json
 
-## 🔧 Configuration
+{
+  "username": "user",
+  "password": "password"
+}
 
-### Database
-- Default database file: `willpower.db` (created automatically in the working directory)
-- SQLite is used for simplicity and portability
+Response: { "token": "jwt_token" }
+```
 
-### Server Port
-- Default port: `8080`
-- To change, modify the port in `willpower-forge-api/main.go:62`
+### Goals (Requires Authentication)
+
+Add header: `Authorization: Bearer <token>`
+
+#### List Goals
+```http
+GET /goals
+```
+
+#### Create Goal
+```http
+POST /goals
+Content-Type: application/json
+
+{
+  "title": "Goal Title",
+  "description": "Goal Description"
+}
+```
+
+#### Get Goal
+```http
+GET /goals/:id
+```
+
+#### Update Goal
+```http
+PUT /goals/:id
+Content-Type: application/json
+
+{
+  "title": "Updated Title",
+  "description": "Updated Description"
+}
+```
+
+#### Delete Goal (Soft)
+```http
+DELETE /goals/:id
+```
+
+#### Restore Goal
+```http
+PUT /goals/:id/restore
+```
+
+#### Permanent Delete
+```http
+DELETE /goals/:id/permanent
+```
+
+#### Get Recycle Bin
+```http
+GET /goals/recycle-bin
+```
+
+### Check-ins (Requires Authentication)
+
+#### Create Check-in
+```http
+POST /checkins
+Content-Type: application/json
+
+{
+  "goal_id": 1,
+  "status": "completed",  // "completed" | "partial" | "failed"
+  "review": "Daily review notes"
+}
+```
+
+#### Get Check-in History
+```http
+GET /checkins?goal_id=1
+```
+
+#### Get Summary
+```http
+GET /checkins/summary
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Port Already in Use
+
+```bash
+# Find process using port
+sudo lsof -i:5173
+# or
+sudo ss -tulpn | grep 5173
+
+# Kill process
+sudo kill -9 <PID>
+```
+
+### Cannot Access from External Network
+
+1. **Verify service is running:**
+   ```bash
+   sudo systemctl status willpower-forge
+   ```
+
+2. **Check listening address:**
+   ```bash
+   sudo ss -tulpn | grep 5173
+   # Should show: *:5173 (not 127.0.0.1:5173)
+   ```
+
+3. **Configure cloud security group** (see [Configuration](#-configuration) section)
+
+4. **Check firewall:**
+   ```bash
+   # Ubuntu/Debian
+   sudo ufw allow 5173/tcp
+
+   # CentOS/RHEL
+   sudo firewall-cmd --add-port=5173/tcp --permanent
+   sudo firewall-cmd --reload
+   ```
+
+### Service Won't Start
+
+```bash
+# Check detailed logs
+sudo journalctl -u willpower-forge -xe
+
+# Common issues:
+# - Port already in use
+# - Permission denied (check file permissions)
+# - Database locked (stop other instances)
+```
+
+### Build Errors
+
+```bash
+# Verify versions
+go version   # Should be 1.18+
+node --version  # Should be 14+
+
+# Clean and rebuild
+cd willpower-forge-web
+rm -rf node_modules dist
+npm install
+npm run build
+
+cd ../willpower-forge-api
+go clean
+go build
+```
+
+---
 
 ## 🤝 Contributing
 
@@ -235,44 +435,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+---
+
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 🐛 Troubleshooting
-
-### Port Already in Use
-If port 8080 is already occupied:
-```bash
-# Find and kill the process using port 8080
-# Linux/Mac:
-lsof -ti:8080 | xargs kill -9
-# Windows:
-netstat -ano | findstr :8080
-taskkill /PID <PID> /F
-```
-
-### Database Issues
-If you encounter database errors:
-```bash
-# Backup and remove the database file
-mv willpower.db willpower.db.bak
-# Restart the application (a fresh database will be created)
-```
-
-### Build Errors
-Ensure you have the correct versions:
-```bash
-go version  # Should be 1.18+
-node --version  # Should be 14+
-npm --version
-```
-
-## 📮 Support
-
-If you encounter any issues or have questions:
-- Open an [issue](https://github.com/ShengWang1017/willpower/issues)
-- Check existing issues for solutions
+---
 
 ## 🙏 Acknowledgments
 
@@ -282,9 +451,17 @@ If you encounter any issues or have questions:
 
 ---
 
+## 📮 Support
+
+- 🐛 Issues: https://github.com/ShengWang1017/willpower/issues
+- 📧 Email: (Add your email if needed)
+- 📖 Documentation: [BUILD_README.md](BUILD_README.md)
+
+---
+
 <div align="center">
 
-**Made with ❤️ by [ShengWang1017](https://github.com/ShengWang1017)**
+**Made with ❤️ for better habits**
 
 ⭐ Star this repo if you find it useful!
 

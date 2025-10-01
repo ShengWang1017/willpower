@@ -15,14 +15,14 @@
 
 ### Windows 系统
 1. 双击 `willpower-forge-windows.exe`
-2. 打开浏览器访问 `http://localhost:8080`
+2. 打开浏览器访问 `http://localhost:5173`
 
 ### Linux 系统
 ```bash
 chmod +x willpower-forge-linux
 ./willpower-forge-linux
 ```
-然后在浏览器访问 `http://localhost:8080`
+然后在浏览器访问 `http://localhost:5173`
 
 ## 🔨 重新打包
 
@@ -62,7 +62,7 @@ chmod +x build-linux.sh
 ## 📝 注意事项
 
 1. **数据库文件**：首次运行会在可执行文件同目录生成 `willpower.db` 数据库文件
-2. **端口占用**：默认使用 8080 端口，请确保该端口未被占用
+2. **端口配置**：默认使用 5173 端口，可通过环境变量 `PORT` 自定义端口（如 `PORT=8080 ./willpower-forge-linux`）
 3. **跨平台**：Windows 可执行文件只能在 Windows 上运行，Linux 可执行文件只能在 Linux 上运行
 4. **文件大小**：可执行文件较大是因为包含了完整的前后端代码和依赖
 
@@ -95,7 +95,9 @@ willpower/
 ## 🐛 故障排除
 
 ### 端口被占用
-如果提示 8080 端口被占用，请先关闭占用该端口的程序。
+如果提示 5173 端口被占用，可以：
+- 关闭占用该端口的程序，或
+- 使用自定义端口：`PORT=8080 ./willpower-forge-linux`
 
 ### Windows 防火墙警告
 首次运行可能会弹出防火墙警告，点击"允许访问"即可。
