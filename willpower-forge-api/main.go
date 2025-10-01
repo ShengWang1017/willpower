@@ -1,7 +1,10 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
+	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -11,6 +14,9 @@ import (
 	"willpower-forge-api/internal/routes"
 	"willpower-forge-api/internal/services"
 )
+
+//go:embed web/dist
+var webFS embed.FS
 
 func main() {
 	db, err := database.Connect()
@@ -33,6 +39,24 @@ func main() {
 	router.Use(cors.Default())
 
 	routes.SetupRoutes(router, authHandler, goalHandler, checkInHandler)
+
+	// Serve embedded static files
+	staticFS, err := fs.Sub(webFS, "web/dist")
+	if err != nil {
+		log.Fatalf("failed to load static files: %v", err)
+	}
+
+	// Serve static files for all non-API routes
+	router.NoRoute(func(c *gin.Context) {
+		path := c.Request.URL.Path
+		// Check if file exists in embedded FS
+		if _, err := staticFS.Open(path[1:]); err == nil {
+			c.FileFromFS(path, http.FS(staticFS))
+			return
+		}
+		// Serve index.html for SPA routes
+		c.FileFromFS("/", http.FS(staticFS))
+	})
 
 	if err := router.Run("0.0.0.0:8080"); err != nil {
 		log.Fatalf("failed to start server: %v", err)
