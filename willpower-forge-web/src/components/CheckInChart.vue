@@ -22,16 +22,22 @@ const props = defineProps({
 
 const statusPalette = {
   completed: {
-    border: '#379d64',
-    gradient: ['rgba(55, 157, 100, 0.48)', 'rgba(55, 157, 100, 0.08)']
+    border: '#16a34a',
+    gradientLight: '#bbf7d0',
+    gradientDark: '#16a34a',
+    hoverBorder: '#15803d'
   },
   partial: {
     border: '#f59e0b',
-    gradient: ['rgba(245, 158, 11, 0.45)', 'rgba(245, 158, 11, 0.08)']
+    gradientLight: '#fde68a',
+    gradientDark: '#f59e0b',
+    hoverBorder: '#d97706'
   },
   failed: {
     border: '#ef4444',
-    gradient: ['rgba(239, 68, 68, 0.45)', 'rgba(239, 68, 68, 0.08)']
+    gradientLight: '#fecaca',
+    gradientDark: '#ef4444',
+    hoverBorder: '#dc2626'
   }
 };
 
@@ -57,6 +63,7 @@ const aggregated = computed(() => {
     labels,
     datasets: ['completed', 'partial', 'failed'].map((status) => ({
       status,
+      statusKey: status,
       data: totals.map((entry) => entry[status])
     }))
   };
@@ -67,22 +74,33 @@ const chartData = computed(() => ({
   datasets: aggregated.value.datasets.map((dataset) => ({
     label: dataset.status.charAt(0).toUpperCase() + dataset.status.slice(1),
     data: dataset.data,
+    statusKey: dataset.statusKey,
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 8,
     borderColor: statusPalette[dataset.status].border,
     backgroundColor: (context) => {
       const { ctx, chartArea } = context.chart;
       if (!chartArea) {
-        return statusPalette[dataset.status].gradient[0];
+        return statusPalette[dataset.status].gradientLight;
       }
       const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-      const [start, end] = statusPalette[dataset.status].gradient;
-      gradient.addColorStop(0, start);
-      gradient.addColorStop(1, end);
+      gradient.addColorStop(0, statusPalette[dataset.status].gradientLight);
+      gradient.addColorStop(1, statusPalette[dataset.status].gradientDark);
       return gradient;
     },
-    hoverBackgroundColor: statusPalette[dataset.status].border,
-    maxBarThickness: 34
+    hoverBackgroundColor: (context) => {
+      const { ctx, chartArea } = context.chart;
+      if (!chartArea) {
+        return statusPalette[dataset.status].gradientDark;
+      }
+      const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+      gradient.addColorStop(0, statusPalette[dataset.status].gradientLight);
+      gradient.addColorStop(1, statusPalette[dataset.status].gradientDark);
+      return gradient;
+    },
+    hoverBorderColor: statusPalette[dataset.status].hoverBorder,
+    hoverBorderWidth: 3,
+    maxBarThickness: 40
   }))
 }));
 
@@ -120,15 +138,33 @@ const chartOptions = computed(() => ({
   },
   plugins: {
     legend: {
+      align: 'start',
       position: 'top',
       labels: {
         usePointStyle: true,
-        pointStyle: 'roundedRect',
+        pointStyle: 'circle',
         padding: 16,
-        color: '#475569',
+        color: '#1f2937',
         font: {
           family: 'Inter, system-ui, sans-serif',
-          size: 12
+          size: 13,
+          weight: '500'
+        },
+        boxWidth: 12,
+        boxHeight: 12,
+        generateLabels: (chart) => {
+          const datasets = chart.data.datasets;
+          return datasets.map((dataset, i) => {
+            const statusKey = dataset.statusKey || Object.keys(statusPalette)[i];
+            return {
+              text: dataset.label,
+              fillStyle: statusPalette[statusKey].border,
+              strokeStyle: statusPalette[statusKey].border,
+              lineWidth: 0,
+              hidden: !chart.isDatasetVisible(i),
+              index: i
+            };
+          });
         }
       }
     },

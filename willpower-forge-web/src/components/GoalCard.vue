@@ -53,14 +53,14 @@ const statusPillClass = computed(() =>
   <div
     :class="[
       'flex flex-col gap-4 rounded-2xl p-6 transition-all duration-300 bg-gradient-to-br border backdrop-blur-sm shadow-md hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-black/15',
-      category.value.card
+      category.card
     ]"
   >
     <div class="space-y-1.5">
-      <p class="muted-label" :class="category.value.labelClass">{{ category.value.label }}</p>
+      <p class="muted-label" :class="category.labelClass">{{ category.label }}</p>
       <div class="flex items-center gap-2">
-        <span class="text-lg">{{ category.value.icon }}</span>
-        <h3 class="text-xl font-semibold leading-tight" :class="category.value.headingClass">{{ goal.title }}</h3>
+        <span class="text-lg">{{ category.icon }}</span>
+        <h3 class="text-xl font-semibold leading-tight" :class="category.headingClass">{{ goal.title }}</h3>
       </div>
       <span
         :class="[

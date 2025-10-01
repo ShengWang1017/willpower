@@ -11,14 +11,32 @@
 
   body {
     @apply font-body text-midnight-900 bg-midnight-50 antialiased;
-    background-image: radial-gradient(circle at 20% -10%, rgba(103, 119, 181, 0.28), transparent 55%),
-      radial-gradient(circle at 80% 0%, rgba(55, 157, 100, 0.22), transparent 50%),
-      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 40%, #eef2f6 100%);
+    background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
     min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display text-midnight-900 tracking-tight;
+    @apply font-display text-midnight-900 tracking-tight font-semibold;
+  }
+
+  h1 {
+    @apply text-2xl;
+  }
+
+  h2, h3 {
+    @apply text-lg;
+  }
+
+  body, p, div, span {
+    font-size: 14px;
+  }
+
+  .text-sm {
+    font-size: 12px !important;
+  }
+
+  .text-xs {
+    font-size: 12px !important;
   }
 
   ::selection {
@@ -28,14 +46,204 @@
 
 @layer components {
   .surface-card {
-    @apply bg-surface-gradient border border-white/60 rounded-2xl shadow-soft-xl shadow-black/10 backdrop-blur-md ring-1 ring-midnight-100/50;
+    @apply bg-white border border-gray-100 rounded-xl shadow-sm;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .surface-section {
-    @apply bg-white/90 border border-white/70 rounded-2xl shadow-soft-xl shadow-black/10 backdrop-blur-md ring-1 ring-midnight-100/60;
+    @apply bg-white border border-gray-100 rounded-xl;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .muted-label {
     @apply text-[0.65rem] uppercase tracking-[0.16em] text-midnight-400 font-semibold;
+  }
+
+  .status-tag {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-tag-active {
+    @apply status-tag bg-green-50 text-green-700;
+  }
+
+  .status-tag-archived {
+    @apply status-tag bg-gray-100 text-gray-700;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center px-4 py-2 font-semibold transition-all duration-200 ease-in-out;
+    @apply bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center px-4 py-2 font-semibold transition-all duration-200 ease-in-out;
+    @apply bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center px-4 py-2 font-semibold transition-all duration-200 ease-in-out;
+    @apply bg-gray-500 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-check-in {
+    @apply flex-1 h-9 px-4 text-white font-medium transition-all duration-200 ease-in-out;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 relative overflow-hidden;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-check-in:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn-check-in:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+    width: 20px;
+    height: 20px;
+    animation: ripple 0.6s ease-out;
+    pointer-events: none;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .fade-in-delay {
+    animation: fadeIn 0.5s ease-out;
+    animation-fill-mode: both;
+  }
+
+  .fade-in-delay:nth-child(1) { animation-delay: 0.1s; }
+  .fade-in-delay:nth-child(2) { animation-delay: 0.2s; }
+  .fade-in-delay:nth-child(3) { animation-delay: 0.3s; }
+  .fade-in-delay:nth-child(4) { animation-delay: 0.4s; }
+  .fade-in-delay:nth-child(5) { animation-delay: 0.5s; }
+  .fade-in-delay:nth-child(6) { animation-delay: 0.6s; }
+
+  /* Card hierarchy styles with different shadow depths */
+  .card-light {
+    @apply bg-white border border-gray-200 rounded-xl transition-all duration-300;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-light:hover {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-medium {
+    @apply bg-white border border-gray-200 rounded-xl transition-all duration-300;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  .card-medium:hover {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-heavy {
+    @apply bg-white border border-gray-200 rounded-xl p-8 transition-all duration-300;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+  }
+
+  .card-heavy:hover {
+    transform: translateY(-2px) scale(1.005);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Check-in header with subtle background */
+  .checkin-header {
+    @apply bg-gray-50/50;
+  }
+
+  /* History title with underline decoration */
+  .history-title {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 8px;
+  }
+
+  .history-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      #d1d5db 0%,
+      #9ca3af 50%,
+      #d1d5db 100%
+    );
+    border-radius: 2px;
+  }
+
+  /* Enhanced button hover glow for check-in buttons */
+  .btn-check-in:hover:not(:disabled) {
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.15),
+      0 0 20px currentColor,
+      0 0 40px currentColor;
+    filter: brightness(1.1);
+  }
+
+  .btn-check-in:focus:not(:disabled) {
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.5),
+      0 0 20px currentColor;
   }
 }

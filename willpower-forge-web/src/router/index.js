@@ -4,6 +4,7 @@ import Dashboard from '../views/Dashboard.vue';
 import LoginPage from '../views/LoginPage.vue';
 import RegisterPage from '../views/RegisterPage.vue';
 import GoalDetail from '../views/GoalDetail.vue';
+import RecycleBin from '../views/RecycleBin.vue';
 import { useAuthStore } from '../store/auth';
 
 const router = createRouter({
@@ -29,6 +30,12 @@ const router = createRouter({
       path: '/goals/:id',
       name: 'goal-detail',
       component: GoalDetail,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/recycle-bin',
+      name: 'recycle-bin',
+      component: RecycleBin,
       meta: { requiresAuth: true }
     }
   ]

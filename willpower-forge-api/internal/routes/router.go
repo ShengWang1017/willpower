@@ -19,7 +19,12 @@ func SetupRoutes(router *gin.Engine, authHandler *handlers.AuthHandler, goalHand
 	authenticated.POST("/goals", goalHandler.CreateGoal)
 	authenticated.GET("/goals", goalHandler.GetGoals)
 	authenticated.GET("/goals/:id", goalHandler.GetGoalByID)
+	authenticated.PUT("/goals/:id", goalHandler.UpdateGoal)
 	authenticated.PATCH("/goals/:id/status", goalHandler.UpdateGoalStatus)
+	authenticated.DELETE("/goals/:id", goalHandler.DeleteGoal)
+	authenticated.GET("/goals/recycle-bin", goalHandler.GetDeletedGoals)
+	authenticated.POST("/goals/:id/restore", goalHandler.RestoreGoal)
+	authenticated.DELETE("/goals/:id/permanent", goalHandler.PermanentDeleteGoal)
 
 	authenticated.POST("/checkins", checkInHandler.CreateOrUpdateCheckIn)
 	authenticated.GET("/checkins", checkInHandler.ListCheckIns)

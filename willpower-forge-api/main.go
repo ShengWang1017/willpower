@@ -25,6 +25,10 @@ func main() {
 	goalHandler := handlers.NewGoalHandler(db)
 	checkInHandler := handlers.NewCheckInHandler(db)
 
+	// Start scheduled cleanup service
+	cleanupService := services.NewCleanupService(db)
+	cleanupService.StartScheduledCleanup()
+
 	router := gin.Default()
 	router.Use(cors.Default())
 

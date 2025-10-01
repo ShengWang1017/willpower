@@ -13,4 +13,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Goal APIs
+export const deleteGoal = (goalId) => api.delete(`/goals/${goalId}`);
+export const getDeletedGoals = () => api.get('/goals/recycle-bin');
+export const restoreGoal = (goalId) => api.post(`/goals/${goalId}/restore`);
+export const permanentDeleteGoal = (goalId) => api.delete(`/goals/${goalId}/permanent`);
+
 export default api;
