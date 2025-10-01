@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -58,7 +59,16 @@ func main() {
 		c.FileFromFS("/", http.FS(staticFS))
 	})
 
-	if err := router.Run("0.0.0.0:8080"); err != nil {
+	// Get port from environment variable, default to 5173
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5173"
+	}
+
+	addr := "0.0.0.0:" + port
+	log.Printf("Starting server on %s", addr)
+
+	if err := router.Run(addr); err != nil {
 		log.Fatalf("failed to start server: %v", err)
 	}
 }

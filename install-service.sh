@@ -92,6 +92,10 @@ Restart=no
 NoNewPrivileges=true
 PrivateTmp=true
 
+# Environment variables
+# Set PORT to change the listening port (default: 5173)
+Environment="PORT=5173"
+
 # Logging
 StandardOutput=journal
 StandardError=journal
