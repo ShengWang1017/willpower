@@ -9,8 +9,7 @@ User=sheng.wang
 Group=sheng.wang
 WorkingDirectory=/home/sheng.wang/willpower-forge
 ExecStart=/home/sheng.wang/willpower-forge/willpower-forge-linux
-Restart=on-failure
-RestartSec=5s
+Restart=no
 
 # Security settings
 NoNewPrivileges=true

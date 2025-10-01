@@ -46,7 +46,7 @@ echo -e "${YELLOW}The following will be KEPT (contains your data):${NC}"
 echo "  - Data directory: $DATA_DIR"
 echo "  - Database: $DATA_DIR/willpower.db"
 echo ""
-read -p "Do you want to continue? (y/n) " -n 1 -r
+read -p "Do you want to continue? (y/n) " -r REPLY
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Uninstallation cancelled."
@@ -80,7 +80,7 @@ fi
 # Ask about data directory
 echo ""
 echo -e "${YELLOW}Data directory: $DATA_DIR${NC}"
-read -p "Do you want to remove the data directory (including database)? (y/n) " -n 1 -r
+read -p "Do you want to remove the data directory (including database)? (y/n) " -r REPLY
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     if [ -d "$DATA_DIR" ]; then

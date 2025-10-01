@@ -86,8 +86,7 @@ User=$ACTUAL_USER
 Group=$ACTUAL_GROUP
 WorkingDirectory=$DATA_DIR
 ExecStart=$INSTALL_DIR/$EXECUTABLE
-Restart=on-failure
-RestartSec=5s
+Restart=no
 
 # Security settings
 NoNewPrivileges=true
